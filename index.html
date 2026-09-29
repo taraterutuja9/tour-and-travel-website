@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WanderVista — Explore Without Limits | Premium Tours & Travel Platform</title>
+  <meta name="description" content="Discover breathtaking destinations, luxury hotels, authentic local cuisine, and customized travel packages with WanderVista." />
+
+  <!-- Fonts & Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+
+  <!-- Leaflet Map CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+  <!-- Custom Stylesheet -->
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+
+  <!-- 1. Top Announcement Bar -->
+  <div class="announcement-bar">
+    <div class="announcement-content">
+      <span>🌍 24/7 Travel Support</span>
+      <span>|</span>
+      <span>✈️ Special Offers Available</span>
+      <span>|</span>
+      <span>💕 Honeymoon Packages Up to 20% OFF</span>
+      <span class="coupon-chip" onclick="app.showToast('Coupon WANDER20 copied to clipboard!', 'success')">Code: <strong>WANDER20</strong></span>
+    </div>
+  </div>
+
+  <!-- 2. Navigation Bar -->
+  <nav class="navbar">
+    <div class="nav-container">
+      <div class="brand-logo" onclick="app.navigateTo('home')">
+        <div class="logo-icon"><i class="fas fa-compass" style="color:#fff;"></i></div>
+        <div class="logo-text">
+          <span class="brand-name">WANDERVISTA</span>
+          <span class="brand-tagline">“Explore Without Limits”</span>
+        </div>
+      </div>
+
+      <ul class="nav-links">
+        <li><a class="nav-link active" data-view="home">Home</a></li>
+        <li><a class="nav-link" data-view="destinations">Destinations</a></li>
+        <li><a class="nav-link" data-view="tours">Tours & Packages</a></li>
+        <li><a class="nav-link" data-view="hotels">Hotels</a></li>
+        <li><a class="nav-link" data-view="restaurants">Restaurants</a></li>
+        <li><a class="nav-link" data-view="guide">Travel Guide</a></li>
+        <li><a class="nav-link" data-view="safety">Safety</a></li>
+        <li><a class="nav-link" data-view="transportation">Transportation</a></li>
+        <li><a class="nav-link" data-view="about">About Us</a></li>
+        <li><a class="nav-link" data-view="contact">Contact</a></li>
+      </ul>
+
+      <div class="nav-actions">
+        <!-- Currency Select -->
+        <select class="currency-select" id="currency-select" title="Change Currency">
+          <option value="INR">INR ₹</option>
+          <option value="USD">USD $</option>
+          <option value="EUR">EUR €</option>
+          <option value="GBP">GBP £</option>
+          <option value="AED">AED د.إ</option>
+          <option value="SGD">SGD $</option>
+        </select>
+
+        <!-- Global Search Toggle -->
+        <div class="search-input-wrap" style="width: 180px;">
+          <i class="fas fa-search"></i>
+          <input type="text" id="global-search-input" placeholder="Search..." />
+        </div>
+
+        <!-- Wishlist Icon -->
+        <button class="nav-icon-btn" onclick="app.navigateTo('wishlist')" title="Wishlist">
+          <i class="fas fa-heart"></i>
+          <span class="badge-count" id="wishlist-count-badge">0</span>
+        </button>
+
+        <!-- Auth Button -->
+        <button class="btn btn-light btn-sm" id="nav-auth-btn">
+          <i class="fas fa-sign-in-alt"></i> Sign In
+        </button>
+
+        <!-- Plan My Trip CTA -->
+        <button class="btn btn-accent btn-sm" onclick="app.navigateTo('planner')">
+          <i class="fas fa-magic"></i> Plan My Trip
+        </button>
+
+        <!-- Mobile Hamburger -->
+        <button class="hamburger" id="hamburger-btn" aria-label="Toggle menu">
+          <i class="fas fa-bars"></i>
+        </button>
+      </div>
+    </div>
+  </nav>
+
+  <!-- Global Search Modal Dropdown -->
+  <div class="modal-overlay" id="search-results-modal">
+    <div class="modal-card" style="max-width: 600px;">
+      <button class="modal-close-btn">&times;</button>
+      <div class="modal-header">
+        <h3><i class="fas fa-search" style="color:var(--turquoise);"></i> Search Results</h3>
+      </div>
+      <div class="modal-body" id="search-results-list"></div>
+    </div>
+  </div>
+
+  <!-- VIEWS CONTAINER -->
+  <main class="view-container">
+
+    <!-- PAGE 1: HOME PAGE -->
+    <section class="page-view active" id="page-home">
+      <!-- Full-Screen Hero -->
+      <div class="hero-section">
+        <div class="hero-overlay"></div>
+        <div class="hero-content">
+          <div class="badge badge-gold hero-badge"><i class="fas fa-crown"></i> World's #1 Travel Discovery Platform</div>
+          <h1 class="hero-title">Discover the World.<br><span class="gradient-text">Create Unforgettable Memories.</span></h1>
+          <p class="hero-subtitle">Explore breathtaking destinations, luxury hotels, delicious local cuisine and unforgettable experiences — all in one place.</p>
+
+          <!-- Search Panel Card -->
+          <div class="search-box-card">
+            <form onsubmit="event.preventDefault(); app.navigateTo('destinations');">
+              <div class="search-grid">
+                <div class="search-field">
+                  <label><i class="fas fa-map-marker-alt"></i> Where do you want to go?</label>
+                  <input type="text" placeholder="e.g. Goa, Kashmir, Dubai..." id="hero-dest-input" />
+                </div>
+                <div class="search-field">
+                  <label><i class="far fa-calendar-alt"></i> Travel Dates</label>
+                  <input type="date" />
+                </div>
+                <div class="search-field">
+                  <label><i class="fas fa-users"></i> Travelers</label>
+                  <select>
+                    <option>1 Person</option>
+                    <option selected>2 Persons</option>
+                    <option>3-5 Family</option>
+                    <option>Group 6+</option>
+                  </select>
+                </div>
+                <div class="search-field">
+                  <label><i class="fas fa-wallet"></i> Budget</label>
+                  <select>
+                    <option>Flexible</option>
+                    <option>Budget Friendly</option>
+                    <option>Comfort Deluxe</option>
+                    <option>Ultra Luxury</option>
+                  </select>
+                </div>
+                <div>
+                  <button type="submit" class="btn btn-accent btn-lg" style="width:100%;">
+                    <i class="fas fa-search"></i> EXPLORE NOW
+                  </button>
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <!-- Popular Quick Pills -->
+          <div class="popular-chips">
+            <span class="popular-title">Popular:</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('goa')">Goa</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('kashmir')">Kashmir</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('dubai')">Dubai</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('bali')">Bali</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('maldives')">Maldives</span>
+            <span class="pop-chip" onclick="app.openDestinationDetail('switzerland')">Switzerland</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION 1: Incredible India -->
+      <section class="section section-light">
+        <div class="container">
+          <h2 class="section-title">Explore Incredible India 🇮🇳</h2>
+          <p class="section-subtitle">From serene backwaters to snow-covered Himalayan peaks, discover timeless culture & beauty across India.</p>
+          <div class="cards-grid" id="home-national-grid"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 2: International Beyond Borders -->
+      <section class="section section-sky">
+        <div class="container">
+          <h2 class="section-title">Travel Beyond Borders 🌎</h2>
+          <p class="section-subtitle">Fly to iconic world capitals, crystal blue tropical islands, and legendary historic wonders across the globe.</p>
+          <div class="cards-grid" id="home-international-grid"></div>
+        </div>
+      </section>
+
+      <!-- SECTION 3: Choose Your Perfect Escape -->
+      <section class="section section-dark">
+        <div class="container">
+          <h2 class="section-title" style="color:#fff;">Choose Your Perfect Escape</h2>
+          <p class="section-subtitle" style="color:rgba(255,255,255,0.7);">Tailored travel styles designed for every adventurer, couple, and family.</p>
+          <div class="escape-grid">
+            <div class="escape-card" onclick="app.navigateTo('destinations')">
+              <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=600&q=80" alt="Beach" />
+              <div class="escape-overlay">
+                <h3 class="escape-title">🏖 Beach Holidays</h3>
+                <span class="escape-count">Goa, Maldives, Bali, Andaman</span>
+              </div>
+            </div>
+            <div class="escape-card" onclick="app.navigateTo('destinations')">
+              <img src="https://images.unsplash.com/photo-1548013146-72479768bada?auto=format&fit=crop&w=600&q=80" alt="Mountain" />
+              <div class="escape-overlay">
+                <h3 class="escape-title">🏔 Mountain Adventures</h3>
+                <span class="escape-count">Kashmir, Switzerland, Ladakh, Manali</span>
+              </div>
+            </div>
+            <div class="escape-card" onclick="app.navigateTo('destinations')">
+              <img src="https://images.unsplash.com/photo-1514282401047-d79a71a590e8?auto=format&fit=crop&w=600&q=80" alt="Honeymoon" />
+              <div class="escape-overlay">
+                <h3 class="escape-title">💕 Honeymoon</h3>
+                <span class="escape-count">Maldives, Paris, Udaipur, Kerala</span>
+              </div>
+            </div>
+            <div class="escape-card" onclick="app.navigateTo('destinations')">
+              <img src="https://images.unsplash.com/photo-1596422846543-75c6fc197f07?auto=format&fit=crop&w=600&q=80" alt="Family" />
+              <div class="escape-overlay">
+                <h3 class="escape-title">👨‍👩‍👧 Family Trips</h3>
+                <span class="escape-count">Singapore, Dubai, Thailand, London</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- SECTION 4: Interactive Map Explorer Banner -->
+      <section class="section section-light">
+        <div class="container" style="text-align:center;">
+          <h2 class="section-title">Explore the World on the Map 🌎</h2>
+          <p class="section-subtitle">Click on interactive pins to view instant travel details, budget estimates, and attractions.</p>
+          <button class="btn btn-primary btn-lg" onclick="app.navigateTo('map-explorer')">
+            <i class="fas fa-globe-americas"></i> Open Interactive Map Explorer
+          </button>
+        </div>
+      </section>
+    </section>
+
+    <!-- PAGE 2: DESTINATIONS PAGE -->
+    <section class="page-view" id="page-destinations">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Explore Destinations Around the World</h1>
+          <p class="section-subtitle">Search through our curated selection of 33+ top destinations across India and internationally.</p>
+
+          <!-- Filter Toolbar -->
+          <div class="filter-toolbar">
+            <div class="search-input-wrap">
+              <i class="fas fa-search"></i>
+              <input type="text" id="dest-search-input" placeholder="Search destination..." oninput="app.renderDestinationsView()" />
+            </div>
+
+            <div class="filter-group">
+              <select class="filter-select" id="dest-cat-filter" onchange="app.renderDestinationsView()">
+                <option value="all">All Regions (National & Int'l)</option>
+                <option value="national">🇮🇳 National (India)</option>
+                <option value="international">🌎 International</option>
+              </select>
+
+              <select class="filter-select" id="dest-type-filter" onchange="app.renderDestinationsView()">
+                <option value="all">All Travel Types</option>
+                <option value="beach">Beach & Islands</option>
+                <option value="mountain">Mountains & Snow</option>
+                <option value="heritage">Heritage & History</option>
+                <option value="luxury">Luxury & Romance</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- All Destinations Grid -->
+          <div class="cards-grid" id="destinations-all-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 3: DESTINATION DETAIL DYNAMIC PAGE -->
+    <section class="page-view" id="page-destination-detail">
+      <div class="section section-light">
+        <div class="container" id="destination-detail-content">
+          <!-- Dynamically Injected by app.openDestinationDetail() -->
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 4: TOURS & PACKAGES PAGE -->
+    <section class="page-view" id="page-tours">
+      <div class="section section-sky">
+        <div class="container">
+          <h1 class="section-title">Curated Tours & Travel Packages</h1>
+          <p class="section-subtitle">Handcrafted itinerary packages including flights, 4-Star/5-Star hotels, meals, and guided sightseeing.</p>
+          <div class="cards-grid" id="tours-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 5: HOTELS PAGE -->
+    <section class="page-view" id="page-hotels">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Luxury Hotels & Resorts</h1>
+          <p class="section-subtitle">Book hand-picked 5-star beachfront resorts, heritage palaces, and cozy alpine chalets.</p>
+          <div class="cards-grid" id="hotels-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 6: RESTAURANTS & FOOD PAGE -->
+    <section class="page-view" id="page-restaurants">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Taste the World 🌮🍛</h1>
+          <p class="section-subtitle">Discover famous local dishes, street food hubs, and top-rated restaurants for every destination.</p>
+          <div class="food-grid" id="food-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 7: TRAVEL GUIDE PAGE -->
+    <section class="page-view" id="page-guide">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Professional Travel Guide</h1>
+          <p class="section-subtitle">Essential traveler wisdom: visa rules, document safety, currency guidelines & interactive packing checklist.</p>
+
+          <!-- Interactive Packing Checklist -->
+          <div class="checklist-box" style="margin-bottom:3rem;">
+            <h2 style="font-size:1.5rem; text-align:center; color:var(--primary-navy);">🧳 Interactive Packing Checklist</h2>
+            <p style="text-align:center; color:var(--text-muted); font-size:0.9rem;" id="packing-progress-text">0% Packed</p>
+            <div class="progress-bar-wrap">
+              <div class="progress-bar-fill" id="packing-progress-fill"></div>
+            </div>
+            <div class="checklist-items" id="packing-items-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 8: SAFETY CENTER -->
+    <section class="page-view" id="page-safety">
+      <div class="section section-light">
+        <div class="container">
+          <div class="safety-hero">
+            <h1 style="font-size:2.8rem; margin-bottom:0.5rem;"><i class="fas fa-shield-alt" style="color:var(--turquoise);"></i> Traveler Safety Center</h1>
+            <p style="font-size:1.1rem; opacity:0.9; max-width:700px; margin:0 auto;">Your peace of mind is our highest priority. Verified guidelines for solo travelers, women travelers & families.</p>
+          </div>
+
+          <div class="safety-grid">
+            <div class="safety-card">
+              <div class="safety-icon"><i class="fas fa-user-shield"></i></div>
+              <h3>Solo & Women Travel Safety</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.5rem;">Use verified GPS taxis, share live trip status with family, and stay at certified central hotels.</p>
+            </div>
+            <div class="safety-card">
+              <div class="safety-icon"><i class="fas fa-credit-card"></i></div>
+              <h3>Digital Payment & Scam Tips</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.5rem;">Never share card OTPs. Fix taxi fares before starting ride. Use official currency exchange booths.</p>
+            </div>
+            <div class="safety-card">
+              <div class="safety-icon"><i class="fas fa-mountain"></i></div>
+              <h3>Mountain & Beach Safety</h3>
+              <p style="font-size:0.88rem; color:var(--text-muted); margin-top:0.5rem;">Observe high-altitude acclimatization rules in Ladakh. Swim only in lifeguard monitored beach zones.</p>
+            </div>
+          </div>
+
+          <!-- Emergency Numbers Panel -->
+          <div class="emergency-panel">
+            <h2 style="color:var(--danger-red); font-size:1.4rem;"><i class="fas fa-phone-alt"></i> Verified Emergency Services Helplines</h2>
+            <div class="emergency-grid" id="emergency-numbers-grid"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 9: TRANSPORTATION PAGE -->
+    <section class="page-view" id="page-transportation">
+      <div class="section section-sky">
+        <div class="container">
+          <h1 class="section-title">Local Transportation & Logistics</h1>
+          <p class="section-subtitle">Navigate flights, trains, subways, ferries, and rentals across all destinations.</p>
+          <div class="cards-grid" id="transport-modes-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 10: TRIP COST CALCULATOR PAGE -->
+    <section class="page-view" id="page-calculator">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Interactive Trip Cost Calculator</h1>
+          <p class="section-subtitle">Calculate instant estimated trip budgets tailored to your group size, hotel preferences, and travel duration.</p>
+
+          <div class="calculator-card">
+            <div class="calc-form-side">
+              <h3 style="font-size:1.4rem; color:var(--primary-navy);"><i class="fas fa-sliders-h"></i> Customize Trip Parameters</h3>
+              <form id="trip-calculator-form">
+                <div class="calc-grid">
+                  <div class="form-group">
+                    <label>Target Destination</label>
+                    <select class="form-control" id="calc-destination">
+                      <option value="goa">Goa (India)</option>
+                      <option value="kashmir">Kashmir (India)</option>
+                      <option value="dubai">Dubai (UAE)</option>
+                      <option value="bali">Bali (Indonesia)</option>
+                      <option value="switzerland">Switzerland</option>
+                      <option value="maldives">Maldives</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Number of Days</label>
+                    <input type="number" class="form-control" id="calc-days" value="4" min="1" max="30" />
+                  </div>
+                  <div class="form-group">
+                    <label>Travelers Count</label>
+                    <input type="number" class="form-control" id="calc-travelers" value="2" min="1" max="20" />
+                  </div>
+                  <div class="form-group">
+                    <label>Hotel Category</label>
+                    <select class="form-control" id="calc-hotel-tier">
+                      <option value="0.8">Budget Hotel (3-Star)</option>
+                      <option value="1.0" selected>Deluxe Comfort (4-Star)</option>
+                      <option value="1.8">Ultra Luxury (5-Star)</option>
+                      <option value="2.5">Private Pool Villa / Resort</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label>Dining Style</label>
+                    <select class="form-control" id="calc-food-tier">
+                      <option value="0.7">Local Street Food & Cafes</option>
+                      <option value="1.0" selected>Mid-range Restaurants</option>
+                      <option value="1.8">Fine Dining & Beach Shacks</option>
+                    </select>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="calc-result-side">
+              <div>
+                <h3>Estimated Breakdown</h3>
+                <ul class="calc-breakdown-list">
+                  <li class="calc-breakdown-item"><span>Accommodation:</span> <strong id="calc-hotel-val">₹0</strong></li>
+                  <li class="calc-breakdown-item"><span>Intercity & Local Transport:</span> <strong id="calc-transport-val">₹0</strong></li>
+                  <li class="calc-breakdown-item"><span>Food & Dining:</span> <strong id="calc-food-val">₹0</strong></li>
+                  <li class="calc-breakdown-item"><span>Activities & Passes:</span> <strong id="calc-activity-val">₹0</strong></li>
+                </ul>
+              </div>
+
+              <div class="total-cost-box">
+                <div style="font-size:0.85rem; text-transform:uppercase; letter-spacing:1px; opacity:0.8;">Estimated Total Cost</div>
+                <div class="total-amount" id="calc-total-val">₹0</div>
+                <button class="btn btn-accent btn-sm" style="margin-top:1rem;" onclick="app.requireAuth(() => app.showToast('Budget saved to your dashboard!', 'success'), 'Sign in to save budget calculations')">
+                  <i class="fas fa-save"></i> Save Budget
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 11: MY TRIP PLANNER PAGE -->
+    <section class="page-view" id="page-planner">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">My Interactive Trip Planner</h1>
+          <p class="section-subtitle">Build, customize and save your day-by-day itineraries.</p>
+          <div id="planner-days-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 12: MAP EXPLORER FULL PAGE -->
+    <section class="page-view" id="page-map-explorer">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">Interactive World Destination Map 🌎</h1>
+          <p class="section-subtitle">Click markers to discover prices, ratings, and instant destination guides.</p>
+          <div id="map-container"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 13: WISHLIST PAGE -->
+    <section class="page-view" id="page-wishlist">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">My Saved Wishlist ❤️</h1>
+          <p class="section-subtitle">Your personal collection of saved destinations, packages & hotels.</p>
+          <div class="cards-grid" id="wishlist-grid"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 14: USER DASHBOARD PAGE -->
+    <section class="page-view" id="page-dashboard">
+      <div class="section section-light">
+        <div class="container">
+          <div class="dashboard-grid">
+            <!-- Sidebar -->
+            <div class="dashboard-sidebar">
+              <div style="text-align:center; padding-bottom:1.5rem; margin-bottom:1.5rem; border-bottom:1px solid var(--border-light);">
+                <div style="width:70px; height:70px; background:linear-gradient(135deg, var(--turquoise), var(--ocean-blue)); color:#fff; border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:2rem; margin:0 auto 0.8rem auto;">
+                  <i class="fas fa-user"></i>
+                </div>
+                <h3 id="dash-user-name" style="font-size:1.2rem; color:var(--primary-navy);">User Name</h3>
+                <div id="dash-user-email" style="font-size:0.8rem; color:var(--text-muted);">user@example.com</div>
+              </div>
+
+              <ul class="dash-menu">
+                <li class="dash-menu-item active" onclick="app.navigateTo('dashboard')"><i class="fas fa-th-large"></i> Overview</li>
+                <li class="dash-menu-item" onclick="app.navigateTo('planner')"><i class="fas fa-map-marked-alt"></i> My Trips (<span id="dash-trips-count">0</span>)</li>
+                <li class="dash-menu-item" onclick="app.navigateTo('wishlist')"><i class="fas fa-heart"></i> Saved Wishlist (<span id="dash-wishlist-count">0</span>)</li>
+                <li class="dash-menu-item" onclick="app.logout()"><i class="fas fa-sign-out-alt" style="color:var(--danger-red);"></i> Logout</li>
+              </ul>
+            </div>
+
+            <!-- Content Area -->
+            <div class="dashboard-content-box">
+              <h2 style="font-size:1.5rem; color:var(--primary-navy); margin-bottom:1rem;">Welcome to your WanderVista Dashboard! 👋</h2>
+              <p style="color:var(--text-muted); margin-bottom:2rem;">Manage your saved trips, review past bookings, and plan upcoming adventures.</p>
+
+              <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(180px, 1fr)); gap:1.2rem; margin-bottom:2.5rem;">
+                <div style="background:var(--sky-light); padding:1.2rem; border-radius:var(--radius-lg); text-align:center;">
+                  <i class="fas fa-plane-departure" style="font-size:1.8rem; color:var(--ocean-blue); margin-bottom:0.5rem;"></i>
+                  <div style="font-size:1.5rem; font-weight:800;" id="dash-bookings-count">0</div>
+                  <div style="font-size:0.8rem; color:var(--text-muted);">Confirmed Bookings</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 15: ABOUT US PAGE -->
+    <section class="page-view" id="page-about">
+      <div class="section section-light">
+        <div class="container" style="max-width:900px;">
+          <h1 class="section-title">About WanderVista</h1>
+          <p class="section-subtitle">“Explore Without Limits” — We build unforgettable, seamless travel experiences worldwide.</p>
+          <div style="background:#fff; padding:2.5rem; border-radius:var(--radius-xl); box-shadow:var(--shadow-md); border:1px solid var(--border-light); line-height:1.8; color:var(--text-dark);">
+            <h3 style="color:var(--primary-navy); font-size:1.4rem; margin-bottom:0.8rem;">Our Story & Mission</h3>
+            <p style="margin-bottom:1.5rem;">WanderVista was born out of a passion to simplify travel discovery. We combine state-of-the-art visual technology with real-world curated itineraries to help travelers experience destination highlights without friction.</p>
+
+            <h3 style="color:var(--primary-navy); font-size:1.4rem; margin-bottom:0.8rem;">Why Choose WanderVista?</h3>
+            <ul style="list-style:none; display:flex; flex-direction:column; gap:0.6rem; margin-bottom:1.5rem;">
+              <li><i class="fas fa-check-circle" style="color:var(--tropical-green);"></i> 24/7 Dedicated Concierge & Traveler Support</li>
+              <li><i class="fas fa-check-circle" style="color:var(--tropical-green);"></i> Handcrafted Packages with Transparent Price Estimates</li>
+              <li><i class="fas fa-check-circle" style="color:var(--tropical-green);"></i> Verified Safety Ratings & Local Guidelines</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- PAGE 16: CONTACT US PAGE -->
+    <section class="page-view" id="page-contact">
+      <div class="section section-light">
+        <div class="container">
+          <h1 class="section-title">We're Here to Help You Travel Better</h1>
+          <p class="section-subtitle">Have questions about destinations, packages, or bookings? Reach out to our 24/7 team.</p>
+
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:3rem;">
+            <div>
+              <div class="safety-card" style="margin-bottom:1.5rem;">
+                <i class="fas fa-headset" style="font-size:1.8rem; color:var(--turquoise); margin-bottom:0.8rem;"></i>
+                <h3>24/7 Customer Support</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem;">Call us anytime at: <strong>+91 1800 123 4567</strong></p>
+              </div>
+              <div class="safety-card" style="margin-bottom:1.5rem;">
+                <i class="fas fa-envelope" style="font-size:1.8rem; color:var(--accent-orange); margin-bottom:0.8rem;"></i>
+                <h3>Email Inquiries</h3>
+                <p style="color:var(--text-muted); font-size:0.9rem;">Send messages to: <strong>support@wandervista.com</strong></p>
+              </div>
+              <button class="btn btn-accent btn-lg" style="width:100%;" onclick="app.showToast('Opening WhatsApp Support Chat...', 'success')">
+                <i class="fab fa-whatsapp"></i> Instant WhatsApp Support
+              </button>
+            </div>
+
+            <div style="background:#fff; padding:2rem; border-radius:var(--radius-xl); border:1px solid var(--border-light); box-shadow:var(--shadow-md);">
+              <h3 style="margin-bottom:1.2rem; color:var(--primary-navy);">Send Us a Message</h3>
+              <form onsubmit="event.preventDefault(); app.showToast('Message sent! Our team will contact you shortly.', 'success');">
+                <div class="form-group">
+                  <label>Full Name</label>
+                  <input type="text" class="form-control" required placeholder="John Doe" />
+                </div>
+                <div class="form-group">
+                  <label>Email Address</label>
+                  <input type="email" class="form-control" required placeholder="john@example.com" />
+                </div>
+                <div class="form-group">
+                  <label>Message / Inquiry</label>
+                  <textarea class="form-control" rows="4" required placeholder="Tell us about your upcoming trip plans..."></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary" style="width:100%;">Send Message</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- AUTHENTICATION MODAL -->
+  <div class="modal-overlay" id="auth-modal">
+    <div class="modal-card">
+      <button class="modal-close-btn">&times;</button>
+      <div class="modal-header">
+        <h2 style="color:var(--primary-navy);">Account Portal</h2>
+        <div id="auth-notice" style="margin-top:0.5rem;"></div>
+      </div>
+
+      <div class="modal-body">
+        <div class="auth-tabs">
+          <div class="auth-tab active" data-tab="signin">Sign In</div>
+          <div class="auth-tab" data-tab="signup">Create Account</div>
+        </div>
+
+        <!-- Sign In Form -->
+        <form id="signin-form">
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" class="form-control" id="signin-email" placeholder="name@example.com" required />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" id="signin-password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-primary btn-lg" style="width:100%; margin-top:1rem;">
+            Sign In
+          </button>
+        </form>
+
+        <!-- Sign Up Form -->
+        <form id="signup-form" style="display:none;">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input type="text" class="form-control" id="signup-name" placeholder="Alex Morgan" required />
+          </div>
+          <div class="form-group">
+            <label>Email Address</label>
+            <input type="email" class="form-control" id="signup-email" placeholder="alex@example.com" required />
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" class="form-control" id="signup-phone" placeholder="+91 98765 43210" />
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" class="form-control" id="signup-password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn btn-accent btn-lg" style="width:100%; margin-top:1rem;">
+            Create Account
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKING MODAL -->
+  <div class="modal-overlay" id="booking-modal">
+    <div class="modal-card" style="max-width:600px;">
+      <button class="modal-close-btn">&times;</button>
+      <div class="modal-body" id="booking-modal-body" style="padding-top:2rem;"></div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-col">
+          <div class="brand-logo" style="margin-bottom:1rem;">
+            <div class="logo-icon"><i class="fas fa-compass" style="color:#fff;"></i></div>
+            <div class="logo-text">
+              <span class="brand-name">WANDERVISTA</span>
+              <span class="brand-tagline">“Explore Without Limits”</span>
+            </div>
+          </div>
+          <p style="font-size:0.88rem; color:rgba(255,255,255,0.7); line-height:1.6;">Your premier travel discovery & booking platform. Explore 33+ iconic destinations across India and worldwide with confidence.</p>
+        </div>
+
+        <div class="footer-col">
+          <h4>EXPLORE</h4>
+          <ul class="footer-links">
+            <li><a data-view="destinations">Destinations</a></li>
+            <li><a data-view="tours">Tours & Packages</a></li>
+            <li><a data-view="hotels">Hotels & Resorts</a></li>
+            <li><a data-view="restaurants">Restaurants & Food</a></li>
+            <li><a data-view="map-explorer">World Map Explorer</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>TRAVEL HELP</h4>
+          <ul class="footer-links">
+            <li><a data-view="guide">Travel Guide</a></li>
+            <li><a data-view="safety">Safety Center</a></li>
+            <li><a data-view="transportation">Transportation</a></li>
+            <li><a data-view="calculator">Cost Calculator</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>COMPANY</h4>
+          <ul class="footer-links">
+            <li><a data-view="about">About Us</a></li>
+            <li><a data-view="contact">Contact Us</a></li>
+            <li><a onclick="app.showToast('Terms of Service loaded', 'info')">Terms of Service</a></li>
+            <li><a onclick="app.showToast('Privacy Policy loaded', 'info')">Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-col">
+          <h4>NEWSLETTER</h4>
+          <div class="footer-newsletter">
+            <p style="font-size:0.85rem; color:rgba(255,255,255,0.7); margin-bottom:0.8rem;">Get exclusive travel inspiration & discounts in your inbox.</p>
+            <input type="email" placeholder="Enter your email..." />
+            <button class="btn btn-accent btn-sm" style="width:100%;" onclick="app.showToast('Subscribed to WanderVista Newsletter!', 'success')">Subscribe</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p>&copy; 2026 WanderVista Travel Platform. All Rights Reserved. Designed with passion for global travelers.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Leaflet Map JS -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- Application Datasets & Scripts -->
+  <script src="js/data.js"></script>
+  <script src="js/app.js"></script>
+
+</body>
+</html>
